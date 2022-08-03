@@ -1,0 +1,50 @@
+{% extends "layouts/main.html" %}
+
+{% block head %}
+
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="//code.jquery.com/jquery-1.12.4.js"></script>
+<script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<link rel="stylesheet" href=url_for('/static/css/normalize.css', ticker = {{ticker}})/>
+<link rel="stylesheet" href=url_for('/static/css/skeleton.css', ticker = {{ticker}})/>
+<link rel="stylesheet" href=url_for('/static/css/style.css', ticker = {{ticker}})/>
+{% endblock %}
+
+{% block content%}
+
+
+</body>
+
+<form method="get"></form>
+    <label for="stocks">Choose a stock ticker:</label>
+    <select id="stocks" name="stocks">
+    {%for i in df_tickers%}
+      <option value="{{i}}">{{i}}</option>
+    {% endfor %}
+    <input type="button" value="Submit" onclick="stock_choose()"> 
+</form>
+
+
+<div>
+    <div id="plotly-stock-candle"></div>
+
+            <script>
+                //Parse your Json variable here
+                var graphs = {{ plotly_plot | safe }};
+                Plotly.plot('plotly-stock-candle', graphs, {});
+            </script>
+            
+        </div>
+
+</body>
+
+<script>
+    function stock_choose() {
+        var e = document.getElementById("stocks");
+        var list_stocks = e.options[e.selectedIndex].value;
+        var theUrl = "/".concat("stocks/"+list_stocks);
+        window.location.replace(theUrl);
+    }
+</script>
+
+{% endblock %}
