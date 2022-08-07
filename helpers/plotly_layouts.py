@@ -27,18 +27,6 @@ def create_plotly(data):
 
     fig0 = def_fig(fig0, Header, candle_stick)
 
-    #color_palette = ["#557B83","#39AEA9","#A2D5AB","#E5EFC1"]
-
-    """ fig = px.bar(data,
-                  x="year",
-                  y="Dividends",
-                  title="Dividends",
-                  barmode='group',
-                  color_discrete_sequence =color_palette[:1])
-    fig = fig_layout(fig, ytitle= "", ytickfromat = None, xtitle= "Year", ticker= "AAPL",
-                      legendtitle = "Debt and Liabilites", type_of_plot = "Dividends", yaxis_tickprefix='$',)
-    fig """
-
     return fig0
 
 def def_fig(fig, Header, candle_stick = False, color_percentage = "#03d338",xticks_show = True ,show_legend = True,
@@ -128,6 +116,7 @@ def def_fig(fig, Header, candle_stick = False, color_percentage = "#03d338",xtic
                     dict(count=6, label="6m", step="month", stepmode="backward"),
                     dict(count=1, label="YTD", step="year", stepmode="todate"),
                     dict(count=1, label="1y", step="year", stepmode="backward"),
+                    dict(count=3, label="3y", step="year", stepmode="backward"),
                     dict(step="all")
                 ])
             )
@@ -191,8 +180,7 @@ if __name__ == '__main__':
     import sqlite3 as sq
     import pandas as pd
     table_name = "stock_database" # table and file name
-
-    conn = sq.connect('{}.sqlite'.format(table_name))
+    conn = sq.connect('{}.sqlite'.format("database"))
     df = pd.read_sql('select * from {}'.format(table_name), conn)
 
     data = df[df["Ticker"]=="AAN"]

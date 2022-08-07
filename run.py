@@ -32,9 +32,11 @@ user_datastore = SQLAlchemySessionUserDatastore(db_session, User, Role)
 security = Security(app, user_datastore)
 
 ## Database for stocks
-table_name = "stock_database" # table and file name
-conn = sq.connect('{}.sqlite'.format(table_name))
-df = pd.read_sql('select * from {}'.format(table_name), conn)
+
+conn = sq.connect('helpers/{}.sqlite'.format("database"),check_same_thread=False)
+df = pd.read_sql('select * from {}'.format("stock_database"), conn)
+stock_infos = pd.read_sql("select * from {}".format("stock_infos"), conn)
+
 
 # Create a user to test with
 @app.before_first_request
@@ -76,16 +78,9 @@ def logout():
     return redirect("/", code=302)
 
 
-@app.route("/Example1")
-@auth_required()
-def example():
-    textout = "This is an example"
-    return render_template("example1.html", textout=textout)
-
 @app.route("/stocks/<ticker>", methods=['POST','GET'])
 @auth_required()
 def stocks(ticker):
-    
 
     df_tickers = df["Ticker"].unique()
 
@@ -93,14 +88,22 @@ def stocks(ticker):
         ticker = "AAN"
 
     data = df[df["Ticker"]==ticker]
-    
     plot = plt.create_plotly(data)
-    #plot.show()
-    #print(plot)
+
+    ## Stock info
+    ticker_info = stock_infos[stock_infos["Ticker"]==ticker]
+    ticker_info = ticker_info.transpose()
+    ticker_info.columns = ["Ticker Information"]
+    df1 = ticker_info.iloc[:round(len(ticker_info)/2)-1, :]
+    df2 = ticker_info.iloc[(round(len(ticker_info)/2)):, :]
+
+    df1 = df1.to_html()
+    df2 = df2.to_html()
+
     plotly_plot = json.dumps(plot, cls=plotly.utils.PlotlyJSONEncoder)
 
     return render_template("stocks.html", plotly_plot= plotly_plot, ticker = ticker,
-                          df_tickers = df_tickers)
+                          df_tickers = df_tickers, ticker_info = [df1,df2])
 
 @app.route("/stocks")
 @auth_required()

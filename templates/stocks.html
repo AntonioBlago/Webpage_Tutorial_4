@@ -25,15 +25,23 @@
 </form>
 
 
-<div>
-    <div id="plotly-stock-candle"></div>
 
+        <div>
+            <div id="plotly-stock-candle"></div>
             <script>
                 //Parse your Json variable here
                 var graphs = {{ plotly_plot | safe }};
                 Plotly.plot('plotly-stock-candle', graphs, {});
             </script>
-            
+        </div>
+
+        <div class="row">
+            <div class="column">
+                {{ ticker_info[0]|safe }}
+            </div>
+            <div class="column">
+               {{ ticker_info[1]|safe }}
+            </div>
         </div>
 
 </body>
