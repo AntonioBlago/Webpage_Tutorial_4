@@ -2,7 +2,7 @@
 ## How to use this template?
 
 This template is based on python and the flask framework.
-Here is the full step-by-step guide how to use it:
+Here is the full step-by-step guide on how to use it:
 ([Link](https://antonioblago.medium.com/how-to-create-your-own-stock-market-and-finance-app-part-1-72d8558ef8b3))
 
 ## Quick start in your terminal
@@ -15,7 +15,7 @@ Here is the full step-by-step guide how to use it:
 ## Create your first stock database
 - python helpers/stock.py
 
-## Run the app and see dashboard
+## Run the app and see the dashboard
 - python run.py
 
 ## Deploy your app to [pythonanywhere*](https://www.pythonanywhere.com/?affiliate_id=007ce8a4)
