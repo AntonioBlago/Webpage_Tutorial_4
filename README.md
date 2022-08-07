@@ -3,7 +3,7 @@
 
 This template is based on python and the flask framework.
 Here is the full step-by-step guide how to use it:
-[Link]
+([Link](https://antonioblago.medium.com/how-to-create-your-own-stock-market-and-finance-app-part-1-72d8558ef8b3))
 
 ## Quick start in your terminal
 - git clone https://github.com/AntonioBlago/Webpage_Tutorial_4.git
