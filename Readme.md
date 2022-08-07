@@ -19,3 +19,4 @@ Here is the full step-by-step guide how to use it:
 
 ## Deploy your app to [pythonanywhere*](https://www.pythonanywhere.com/?affiliate_id=007ce8a4)
 - Part 4: Flask tutorial: How to deploy and publish an app on pythonanywhere ([Link](https://antonioblago.medium.com/flask-tutorial-how-to-deploy-and-publish-an-app-on-pythonanywhere-225314160914))
+
