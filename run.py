@@ -10,7 +10,8 @@ import sqlite3 as sq
 import pandas as pd
 import plotly
 
-import helpers.plotly_layouts as plt 
+import helpers.plotly_layouts as plt
+import helpers.stocks as stocks
 
 
 # Create app
@@ -109,7 +110,7 @@ def stocks(ticker):
 @auth_required()
 def stocks_redirect():
     df_tickers = df["Ticker"].unique()
-    return render_template("stocks.html", df_tickers= df_tickers)
+    return render_template("stocks.html", df_tickers= df_tickers, ticker_info=None)
 
 
 

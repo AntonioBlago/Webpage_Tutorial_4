@@ -24,7 +24,7 @@
     <input type="button" value="Submit" onclick="stock_choose()"> 
 </form>
 
-
+{%if ticker_info != None %}
 
         <div>
             <div id="plotly-stock-candle"></div>
@@ -43,6 +43,7 @@
                {{ ticker_info[1]|safe }}
             </div>
         </div>
+{% endif %}
 
 </body>
 
