@@ -29,6 +29,23 @@ def create_plotly(data):
 
     return fig0
 
+def create_plotly_xy(data, period = "1y"):
+
+    fig = px.scatter(data, x="vola_"+ period, y=period,
+                     color="Sector",
+                     hover_data=["Ticker", "Name", "Sector","link"],
+                     )
+
+    fig = fig_layout(fig, ytitle = "Return "+ period,
+                     ytickfromat = ".0%", xtitle = "Volatility "+ period,xtickfromat = ".0%",
+                     ticker = period , legendtitle = "Sector",type_of_plot = "Return and Risk" )
+
+    fig.update_yaxes(showgrid=True, zeroline=True)
+    fig.update_xaxes(showgrid=True, zeroline=False)
+
+    return fig
+
+
 def def_fig(fig, Header, candle_stick = False, color_percentage = "#03d338",xticks_show = True ,show_legend = True,
             buttons = True):
 
@@ -133,13 +150,19 @@ def def_fig(fig, Header, candle_stick = False, color_percentage = "#03d338",xtic
     return fig
 
 
-def fig_layout(fig, ytitle, ytickfromat, xtitle,ticker, legendtitle, type_of_plot, yaxis_tickprefix=None):
+def fig_layout(fig, ytitle, ytickfromat, xtitle, xtickfromat, ticker, legendtitle, type_of_plot, yaxis_tickprefix=None):
 
     fig.update_layout(
         yaxis={
             "title": ytitle,
             "tickformat": ytickfromat,
+            "showticklabels": True,
 
+        },
+        xaxis={
+            "title": xtitle,
+            "tickformat": xtickfromat,
+            "showticklabels" :True,
         },
         yaxis_tickprefix = yaxis_tickprefix,
         paper_bgcolor="#FFFFFF",  # rgba(0,0,0,0)',
@@ -154,7 +177,7 @@ def fig_layout(fig, ytitle, ytickfromat, xtitle,ticker, legendtitle, type_of_plo
         ),
         title={
             'text': '{} - {} <br><sup>tenxassets.com</sup>'.format(type_of_plot,ticker),
-            'y': 0.85,
+            'y': 0.90,
             'x': 0.5,
             'xanchor': 'center',
             'yanchor': 'top'},
@@ -163,28 +186,52 @@ def fig_layout(fig, ytitle, ytickfromat, xtitle,ticker, legendtitle, type_of_plo
             color="black"),
 
         template="simple_white",
-        xaxis=dict(
-            title=xtitle,
-            showticklabels=True),
+
         showlegend=True,
         font=dict(
             # family="Courier New, monospace",
             size=12,
             color="black"
-        ),
-    )
+        ))
+    fig.update_layout(
+            updatemenus=[
+                dict(
+                    type="buttons",
+                    direction="left",
+                    buttons=list([
+                        dict(
+                            args=['showlegend', False],
+                            args2=['showlegend', True],
+                            label="≡",
+                            method="relayout"
+                        )
+                    ]),
+                    pad={"r": 2, "t": 2},
+                    showactive=True,
+                    x=-0.1,
+                    xanchor="left",
+                    y=1.2,
+                    yanchor="top"
+                ),
+            ])
+
     return fig
 
 
 if __name__ == '__main__':
     import sqlite3 as sq
     import pandas as pd
-    table_name = "stock_database" # table and file name
+    table_name = "performance_and_vola" # table and file name
     conn = sq.connect('{}.sqlite'.format("database"))
     df = pd.read_sql('select * from {}'.format(table_name), conn)
+    df_infos = pd.read_sql('select * from {}'.format("stock_infos"), conn)
 
-    data = df[df["Ticker"]=="AAN"]
-
-    fig = create_plotly(data)
-    fig.show()
+    df = pd.merge(df, df_infos[["Ticker", "Name", "Sector"]], on="Ticker", how="right")
+    create_plotly_xy(df)
     conn.close()
+
+
+    #data = df[df["Ticker"]=="AAN"]
+    #fig = create_plotly(data)
+
+    #fig.show()

@@ -37,6 +37,7 @@ security = Security(app, user_datastore)
 conn = sq.connect('helpers/{}.sqlite'.format("database"),check_same_thread=False)
 df = pd.read_sql('select * from {}'.format("stock_database"), conn)
 stock_infos = pd.read_sql("select * from {}".format("stock_infos"), conn)
+return_and_volatility = pd.read_sql("select * from {}".format("performance_and_vola"), conn)
 
 
 # Create a user to test with
@@ -51,13 +52,32 @@ def create_user():
 @app.route("/",  methods=['GET', 'POST'])
 def index():
     if current_user.is_authenticated:
+        period = request.args.get("period")
+
+        if period is None:
+            period = "3y"
+
+
         
         greetings = f'Hello {current_user.email} !'
+
+        period_tickers = ["1d","7d", "1m","3m","6m","1y","2y","3y","5y"]
+        df = pd.merge(return_and_volatility, stock_infos[["Ticker", "Name", "Sector"]], on="Ticker", how="right")
+        df["link"] =  df["Ticker"].apply(
+            lambda
+                x: '<a href="/stocks/{0}">{0}</a>'.format(
+                x))
+
+        plot = plt.create_plotly_xy(df, period)
+        plotly_plot = json.dumps(plot, cls=plotly.utils.PlotlyJSONEncoder)
+
+        return render_template("home.html", greetings=greetings, plotly_plot=plotly_plot,
+                               period_tickers = period_tickers)
 
     else:
         greetings = 'Hello, please login'
 
-    return render_template("landing.html", greetings=greetings)
+        return render_template("home.html", greetings=greetings)
 
 @app.route("/login", methods=['GET', 'POST'])
 @auth_required()
@@ -65,6 +85,7 @@ def home():
     if current_user.is_authenticated:
         
         greetings = f'Hello {current_user.email} !'
+
         return render_template("home.html", greetings=greetings)
     
     else:
