@@ -52,6 +52,7 @@ def create_user():
 @app.route("/",  methods=['GET', 'POST'])
 def index():
     if current_user.is_authenticated:
+        login = True
         period = request.args.get("period")
 
         if period is None:
@@ -72,12 +73,13 @@ def index():
         plotly_plot = json.dumps(plot, cls=plotly.utils.PlotlyJSONEncoder)
 
         return render_template("home.html", greetings=greetings, plotly_plot=plotly_plot,
-                               period_tickers = period_tickers)
+                               period_tickers = period_tickers, login = login)
 
     else:
         greetings = 'Hello, please login'
+        login = False
 
-        return render_template("home.html", greetings=greetings)
+        return render_template("home.html", greetings=greetings,login = login)
 
 @app.route("/login", methods=['GET', 'POST'])
 @auth_required()

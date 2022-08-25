@@ -7,7 +7,7 @@
 
 
 <h5>{{greetings}}</h5>
-
+{% if login %}
 <form method="get" action="/">
     <label for="period">Choose a period to compare:</label>
     <select id="period" name="period">
@@ -26,7 +26,7 @@
                 Plotly.plot('plotly-stock-candle', graphs, {});
             </script>
  </div>
-
+{% endif %}
 </body>
 
 
