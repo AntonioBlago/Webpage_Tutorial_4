@@ -1,9 +1,13 @@
 import os
-from flask import Flask, render_template,request,redirect,flash, session, url_for
+from flask import Flask, render_template,request,redirect,Response, flash, session, url_for
 from flask_security import Security, current_user, auth_required, hash_password, \
      SQLAlchemySessionUserDatastore
 from database import db_session, init_db
 from flask_login import login_required, logout_user, LoginManager
+
+from wtforms import StringField, Form
+from wtforms.validators import DataRequired
+
 from models import User, Role
 import json
 import sqlite3 as sq
@@ -107,15 +111,17 @@ def logout():
 def stocks(ticker):
 
     df_tickers = df["Ticker"].unique()
+    form = SearchForm(request.form)
+
 
     if ticker is None or ticker not in df_tickers:
         ticker = "AAN"
 
-    data = df[df["Ticker"]==ticker]
+    data = df[df["Ticker"] == ticker]
     plot = plt.create_plotly(data)
 
     ## Stock info
-    ticker_info = stock_infos[stock_infos["Ticker"]==ticker]
+    ticker_info = stock_infos[stock_infos["Ticker"] == ticker]
     ticker_info = ticker_info.transpose()
     ticker_info.columns = ["Ticker Information"]
     df1 = ticker_info.iloc[:round(len(ticker_info)/2)-1, :]
@@ -127,15 +133,35 @@ def stocks(ticker):
     plotly_plot = json.dumps(plot, cls=plotly.utils.PlotlyJSONEncoder)
 
     return render_template("stocks.html", plotly_plot= plotly_plot, ticker = ticker,
-                          df_tickers = df_tickers, ticker_info = [df1,df2])
+                           ticker_info = [df1,df2], form = form)
 
 @app.route("/stocks")
 @auth_required()
 def stocks_redirect():
-    df_tickers = df["Ticker"].unique()
-    return render_template("stocks.html", df_tickers= df_tickers, ticker_info=None)
 
+    form = SearchForm(request.form)
+    ticker = None
+    return render_template("stocks.html", ticker = ticker, ticker_info=None, form = form)
 
+class SearchForm(Form):
+    autocomp = StringField('Search Stock Name or Ticker:', id='stock_autocomplete',
+                           validators=[DataRequired(message= "Please enter valid stock")])
+
+@app.route('/_autocomplete', methods=['GET'])
+def autocomplete():
+    data = stock_infos[["Ticker", "Name", "Sector"]].copy()
+
+    data["Tickers_list"] = data["Ticker"] +" | "+  data["Name"] +" | "+ data["Sector"]
+
+    data = data.fillna("No name")
+    tmp = data["Tickers_list"].to_list()
+
+    #tmp = data[0]
+
+    ticker_list_final = list(dict.fromkeys(tmp))
+    ticker_list_final = sorted(ticker_list_final)
+
+    return Response(json.dumps(ticker_list_final), mimetype='application/json')
 
 @app.errorhandler(404)
 def not_found_error(error):

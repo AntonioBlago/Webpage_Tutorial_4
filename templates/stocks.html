@@ -1,13 +1,10 @@
 {% extends "layouts/main.html" %}
 
 {% block head %}
-
 <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <script src="//code.jquery.com/jquery-1.12.4.js"></script>
 <script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-<link rel="stylesheet" href=url_for('/static/css/normalize.css', ticker = {{ticker}})/>
-<link rel="stylesheet" href=url_for('/static/css/skeleton.css', ticker = {{ticker}})/>
-<link rel="stylesheet" href=url_for('/static/css/style.css', ticker = {{ticker}})/>
+
 {% endblock %}
 
 {% block content%}
@@ -15,13 +12,9 @@
 
 </body>
 
-<form method="get"></form>
-    <label for="stocks">Choose a stock ticker:</label>
-    <select id="stocks" name="stocks">
-    {%for i in df_tickers%}
-      <option value="{{i}}">{{i}}</option>
-    {% endfor %}
-    <input type="button" value="Submit" onclick="stock_choose()"> 
+<form>
+    {{ form.autocomp.label }} {{ form.autocomp }}
+   <button type="submit">Submit</button>
 </form>
 
 {%if ticker_info != None %}
@@ -47,13 +40,41 @@
 
 </body>
 
+
+
+
 <script>
-    function stock_choose() {
-        var e = document.getElementById("stocks");
-        var list_stocks = e.options[e.selectedIndex].value;
-        var theUrl = "/".concat("stocks/"+list_stocks);
-        window.location.replace(theUrl);
-    }
+        $(function() {
+            $.ajax({
+                url: '{{ url_for("autocomplete") }}'
+                }).done(function (data){
+                    $('#stock_autocomplete').autocomplete({
+                        source: data,
+                        minLength: 3
+                    });
+                });
+            });
 </script>
+
+<script>
+function handleSubmit(event) {
+  event.preventDefault();
+
+  const data = new FormData(event.target);
+
+  const value = Object.fromEntries(data.entries());
+  value.topics = data.getAll("autocomp");
+  var ticker = value.topics[0];
+  var ticker = ticker.split('|')[0].trim();
+  var theUrl = "/".concat("stocks/"+ ticker);
+  window.location.replace(theUrl);
+  console.log( theUrl);
+}
+
+const form = document.querySelector('form');
+form.addEventListener('submit', handleSubmit);
+</script>
+
+
 
 {% endblock %}
